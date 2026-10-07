@@ -6,21 +6,19 @@ import es.urjc.grafo.EDA.utils.Position;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.PriorityQueue;
-import java.util.Random;
+import java.util.*;
 import java.util.random.RandomGenerator;
 
 public class CollectionsHeapTest {
 
-    private static final int n = 100000;
+    private static final int n = 100_000;
     private static final RandomGenerator randomGenerator = new Random();
     private static final List<Integer> numbers = new ArrayList<>(n);
+    private static final Comparator<Integer> comparator = new MinimumComparator<>();
 
     private static void addToSortedList(int numberToAdd, List<Integer> sortedList) {
         int pos = 0;
-        while (pos < sortedList.size() && sortedList.get(pos) < numberToAdd) {
+        while (pos < sortedList.size() && comparator.compare(sortedList.get(pos), numberToAdd) < 0) {
             pos++;
         }
         sortedList.add(pos, numberToAdd);
@@ -31,7 +29,7 @@ public class CollectionsHeapTest {
             sortedList.addFirst(numberToAdd);
         } else {
             for (Position<Integer> position : sortedList.positions()) {
-                if (position.getElement() <= numberToAdd) {
+                if (comparator.compare(position.getElement(), numberToAdd) > 0) {
                     sortedList.addBefore(position, numberToAdd);
                     return;
                 }
@@ -49,18 +47,21 @@ public class CollectionsHeapTest {
 
     @Test
     public void testPerformancePriorityQueue() {
-        PriorityQueue<Integer> javaPriorityQueue = new PriorityQueue<>(new MaximumComparator<>());
+        PriorityQueue<Integer> javaPriorityQueue = new PriorityQueue<>(comparator);
         long startTime = System.currentTimeMillis();
 
+        // Add n/2 random numbers
         for (int i = 0; i < n / 2; i++) {
             javaPriorityQueue.add(numbers.get(i));
         }
 
+        // Add n/2 random numbers and perform n/2 removal operations
         for (int i = n / 2; i < n; i++) {
             javaPriorityQueue.add(numbers.get(i));
             javaPriorityQueue.remove();
         }
 
+        // Remove the rest of numbers
         while (!javaPriorityQueue.isEmpty()) {
             javaPriorityQueue.remove();
         }
@@ -80,11 +81,11 @@ public class CollectionsHeapTest {
 
         for (int i = n / 2; i < n; i++) {
             unsortedList.add(numbers.get(i));
-            unsortedList.sort(new MinimumComparator<>());
+            unsortedList.sort(comparator);
             unsortedList.removeLast();
         }
 
-        unsortedList.sort(new MinimumComparator<>());
+        unsortedList.sort(comparator);
         while (!unsortedList.isEmpty()) {
             unsortedList.removeLast();
         }
@@ -117,7 +118,6 @@ public class CollectionsHeapTest {
 
     @Test
     public void testPerformanceLinkedPositionalList() {
-//        System.out.println("Time of LinkedPositionalList: Skipped.");
         LinkedPositionalList<Integer> sortedPositionalList = new LinkedPositionalList<>();
         long startTime = System.currentTimeMillis();
 
@@ -140,7 +140,7 @@ public class CollectionsHeapTest {
 
     @Test
     public void testPerformanceMonticulo() {
-        Heap<Integer> monticulo = new Heap<>(new MaximumComparator<>());
+        Heap<Integer> monticulo = new Heap<>(comparator);
         long startTime = System.currentTimeMillis();
 
         for (int i = 0; i < n / 2; i++) {
