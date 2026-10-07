@@ -45,7 +45,7 @@ public class HeapTest {
         assertFalse(instance.isEmpty());
         assertEquals(1, instance.size());
         Comparator<? super Integer> comparator = instance.comparator();
-        assertInstanceOf(MinimumComparator.class, comparator);
+        assertInstanceOf(MaximumComparator.class, comparator);
         assertTrue(instance.add(3));
         assertEquals(2, instance.size());
     }
