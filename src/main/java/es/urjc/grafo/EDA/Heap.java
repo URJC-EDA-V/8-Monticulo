@@ -18,7 +18,7 @@ public class Heap<E> implements HeapInterface<E> {
     }
 
     public Heap(int size) {
-        this(new MinimumComparator<>(), size);
+        this(new MaximumComparator<>(), size);
     }
 
     public Heap(Comparator<E> comparator, int size) {
